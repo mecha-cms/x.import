@@ -1,0 +1,61 @@
+#import-log {
+  display: block;
+  margin-right: 0;
+  margin-left: 0;
+  padding: 0;
+  background: #def;
+  color: #000;
+  font: normal normal 11px/18px monospace;
+  white-space: nowrap;
+  max-height: 300px;
+  overflow: hidden;
+}
+#import-log:empty {
+  display: none;
+}
+#import-log code {
+  font: inherit;
+  opacity: .75;
+}
+#import-log:focus,
+#import-log:hover {
+  overflow: auto;
+}
+#import-log li {
+  display: block;
+  list-style: none;
+  margin: 0;
+  padding: 0 2px;
+  position: relative;
+}
+#import-log li:nth-child(even) {
+  background: rgba(0, 0, 0, .025);
+}
+#import-log li::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: #343a40;
+}
+#import-log li p {
+  margin: 0 0 0 18px;
+}
+#import-log .status\:102::before {
+  background: #17a2b8;
+}
+#import-log .status\:200::before {
+  background: #090;
+}
+#import-log .status\:201::before {
+  background: #28a745;
+}
+#import-log .status\:304::before {
+  background: #ffc107;
+}
+#import-log .status\:403::before {
+  background: #dc3545;
+}
