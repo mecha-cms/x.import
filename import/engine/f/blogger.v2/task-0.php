@@ -1,13 +1,15 @@
 <?php
 
-$content = fetch('https://www.blogger.com/feeds/' . $query['blog'] . '/posts/summary?alt=json&max-results=0&start-index=1');
+$fetch = 'https://www.blogger.com/feeds/' . $query['blog'] . '/posts/summary?alt=json&max-results=0&start-index=1';
 
-require __DIR__ . DS . 'f.php';
+if ($r = require __DIR__ . DS . 'f.php') {
+    return $r;
+}
 
 foreach ([
     'comment',
     'page',
-    'page' . DS . 'blog',
+    'page' . $query['folder'],
     'tag',
     'user'
 ] as $n) {
@@ -25,7 +27,7 @@ foreach ([
     }
 }
 
-$file = is_file($f = $folder . DS . 'lot' . DS . 'page' . DS . 'blog.page');
+$file = is_file($f = $folder . DS . 'lot' . DS . 'page' . $query['folder'] . '.page');
 if (!$safe || !$file) {
     file_put_contents(Path::F($f) . DS . 'time.data', date('Y-m-d H:i:s'));
     file_put_contents($f, To::page(is([
@@ -48,6 +50,32 @@ if (!$safe || !$file) {
         'status' => 304,
         'description' => i('File %s already exists.', ['<code>' . strtr($f, [ROOT => '.']) . '</code>'])
     ];
+}
+
+if ($author) {
+    $n = To::kebab($author);
+    $file = is_file($f = $folder . DS . 'lot' . DS . 'user' . DS . $n . '.page');
+    if (!$safe || !$file) {
+        if (!is_dir($d = Path::F($f))) {
+            mkdir($d, 0775, true);
+        }
+        file_put_contents($d . DS . 'time.data', date('Y-m-d H:i:s'));
+        file_put_contents($f, To::page(is([
+            'author' => $author,
+            'status' => 1
+        ], function($v) {
+            return isset($v);
+        })));
+        $log[microtime()] = [
+            'status' => 201,
+            'description' => i('Created %s user.', ['<strong>@' . $n . '</strong>'])
+        ];
+    } else if ($file) {
+        $log[microtime()] = [
+            'status' => 304,
+            'description' => i('File %s already exists.', ['<code>' . strtr($f, [ROOT => '.']) . '</code>'])
+        ];
+    }
 }
 
 $log[microtime()] = [

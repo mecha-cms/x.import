@@ -1,8 +1,10 @@
 <?php
 
-$content = fetch('https://www.blogger.com/feeds/' . $query['blog'] . '/posts/summary?alt=json&max-results=0&start-index=1');
+$fetch = 'https://www.blogger.com/feeds/' . $query['blog'] . '/posts/summary?alt=json&max-results=0&start-index=1';
 
-require __DIR__ . DS . 'f.php';
+if ($r = require __DIR__ . DS . 'f.php') {
+    return $r;
+}
 
 $file = is_file($f = $folder . DS . 'state.php');
 if (!$safe || !$file) {
@@ -16,7 +18,7 @@ if (!$safe || !$file) {
         'x' => [
             'page' => [
                 'page' => [
-                    'author' => $author,
+                    'author' => $author ? '@' . To::kebab($author) : null,
                     'type' => 'HTML'
                 ]
             ]
@@ -35,7 +37,7 @@ if (!$safe || !$file) {
 
 $log[microtime()] = [
     'status' => 102,
-    'description' => i('Importing blog tags...')
+    'description' => i('Importing blog tags') . '…'
 ];
 
 return [

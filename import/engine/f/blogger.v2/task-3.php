@@ -3,9 +3,12 @@
 $index = $query['i'] - 1;
 $index = $index < 0 ? 0 : $index;
 $index = ($index * $query['chunk']) + 1;
-$content = fetch('https://www.blogger.com/feeds/' . $query['blog'] . '/posts/default?alt=json&max-results=' . $query['chunk'] . '&start-index=' . $index);
 
-require __DIR__ . DS . 'f.php';
+$fetch = 'https://www.blogger.com/feeds/' . $query['blog'] . '/posts/' . (empty($query['o']['post']) ? 'summary' : 'default') . '?alt=json&max-results=' . $query['chunk'] . '&start-index=' . $index;
+
+if ($r = require __DIR__ . DS . 'f.php') {
+    return $r;
+}
 
 $create = 0;
 
@@ -18,9 +21,14 @@ if (!empty($data['feed']['entry'])) {
                 break;
             }
         }
-        $file = is_file($f = $folder . DS . 'lot' . DS . 'page' . DS . 'blog' . DS . $n . '.page');
+        $file = is_file($f = $folder . DS . 'lot' . DS . 'page' . $query['folder'] . DS . $n . '.page');
         $title = $v['title']['$t'] ?? null;
-        if (!$safe || !$file) {
+        if (empty($query['o']['post'])) {
+            $log[microtime()] = [
+                'status' => 100,
+                'description' => i('Post importer was disabled by the author.')
+            ];
+        } else if (!$safe || !$file) {
             if (!is_dir($d = Path::F($f))) {
                 mkdir($d, 0775, true);
             }
@@ -34,7 +42,7 @@ if (!empty($data['feed']['entry'])) {
             if (isset($v['updated']['$t'])) {
                 file_put_contents($d . DS . 'time-update.data', date('Y-m-d H:i:s', strtotime($v['updated']['$t'])));
             }
-            if (!empty($v['category'])) {
+            if (!empty($v['category']) && !empty($query['o']['tag'])) {
                 $tags = [];
                 foreach ($v['category'] as $kk => $vv) {
                     $n = To::kebab($vv['term'] ?? $kk + 1);
@@ -67,7 +75,7 @@ if (!empty($data['feed']['entry'])) {
         }
         $count = (int) ($v['thr$total']['$t'] ?? 0);
         if ($count > 0) {
-            $id = explode('.post-', $v['id']['$t'], 2)[1];
+            $id = e(explode('.post-', $v['id']['$t'], 2)[1]);
             $log[microtime()] = [
                 'status' =>102,
                 'description' => i('Found %d comment' . (1 === $count ? "" : 's') . ' in total.', [$count]) . ' ' . i('Importing comments...'),
@@ -76,26 +84,28 @@ if (!empty($data['feed']['entry'])) {
                     'chunk' => $query['chunk'],
                     'current' => $query['i'],
                     'i' => 1,
-                    'parent' => json_encode($id) // Force as string
+                    'parent' => $id
                 ])
             ];
         }
     }
     if ($index + $query['chunk'] >= (int) ($data['feed']['openSearch$totalResults']['$t'] ?? 0)) {
         if ($create > 0) {
-            $log[microtime()] = [
-                'status' => 201,
-                'description' => i('%d post' . (1 === $create ? "" : 's') . ' successfully imported to %s', [$create, '<code>' . strtr($folder . DS . 'lot' . DS . 'page' . DS . 'blog', [ROOT => '.']) . '</code>'])
-            ];
+            if (!empty($query['o']['post'])) {
+                $log[microtime()] = [
+                    'status' => 201,
+                    'description' => i('%d post' . (1 === $create ? "" : 's') . ' successfully imported to %s', [$create, '<code>' . strtr($folder . DS . 'lot' . DS . 'page' . $query['folder'], [ROOT => '.']) . '</code>'])
+                ];
+            }
         } else {
             $log[microtime()] = [
                 'status' => 100,
-                'description' => i('Continue...')
+                'description' => i('Continue') . '…'
             ];
         }
         $log[microtime()] = [
             'status' => 102,
-            'description' => i('Importing blog pages...')
+            'description' => i('Importing blog pages') . '…'
         ];
         $next = $url . '/.import/blogger.v2/task-4' . $url->query('&', [
             'chunk' => $query['chunk'],
@@ -104,7 +114,7 @@ if (!empty($data['feed']['entry'])) {
     } else {
         $log[microtime()] = [
             'status' => 102,
-            'description' => i('Importing next posts...')
+            'description' => i('Importing next posts') . '…'
         ];
         $next = $url . '/.import/blogger.v2/task-3' . $url->query('&', [
             'chunk' => $query['chunk'],
@@ -114,7 +124,7 @@ if (!empty($data['feed']['entry'])) {
 } else {
     $log[microtime()] = [
         'status' => 200,
-        'description' => i('No more posts to import.') . ' ' . i('Importing blog pages...')
+        'description' => i('No more posts to import.') . ' ' . i('Importing blog pages') . (empty($query['o']['page']) ? ' (' . i('disabled') . ')' : '…')
     ];
     $next = $url . '/.import/blogger.v2/task-4' . $url->query('&', [
         'chunk' => $query['chunk'],

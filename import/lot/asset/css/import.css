@@ -1,3 +1,15 @@
+.import-tools {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+}
+.import-tools li {
+  width: 50%;
+  padding: 18px;
+}
+
 #import-log {
   display: block;
   margin-right: 0;
@@ -12,6 +24,9 @@
 }
 #import-log:empty {
   display: none;
+}
+#import-log ul {
+  margin: 0 0 0 16px;
 }
 #import-log code {
   font: inherit;
@@ -48,7 +63,7 @@
   background: #17a2b8;
 }
 #import-log .status\:200::before {
-  background: #090;
+  background: #8a2be2;
 }
 #import-log .status\:201::before {
   background: #28a745;
@@ -56,6 +71,6 @@
 #import-log .status\:304::before {
   background: #ffc107;
 }
-#import-log .status\:403::before {
+#import-log .status\:408::before {
   background: #dc3545;
 }

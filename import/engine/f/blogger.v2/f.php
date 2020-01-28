@@ -1,13 +1,28 @@
 <?php
 
+$query['folder'] = strtr($query['folder'] ?? '/' . uniqid(), '/', DS);
+
+if (empty($query['blog'])) {
+    $log[microtime()] = [
+        'status' => 408,
+        'description' => i('Missing blog ID.')
+    ];
+    return [
+        'log' => $log,
+        'next' => false
+    ];
+}
+
 $safe = !empty($query['safe']);
 
 $log = [];
 
+$content = @fetch($fetch);
+
 if (!$content) {
     $log[microtime()] = [
         'status' => 408,
-        'description' => i('Error.')
+        'description' => i(error_get_last()['message'] ?? 'Error.')
     ];
     return [
         'log' => $log,
@@ -30,3 +45,5 @@ foreach ($data['feed']['link'] as $v) {
 $host = preg_replace('/^www\./', "", explode('://', $source, 2)[1] ?? $query['id']);
 
 $folder = $safe ? LOT . DS . '.import' . DS . 'blogger.com' . DS . $host : ROOT;
+
+return; // Return `null` on success

@@ -7,18 +7,19 @@
                     'X-Requested-With': 'XHR'
                 })
             }).then(function(response) {
+                if (!response.ok) {
+                    throw Error(response.statusText);
+                }
                 response.json().then(fn);
             }).catch(function(err) {
-                err.text().then(function(text) {
-                    fn({
-                        log: {
-                            "0": {
-                                status: 408,
-                                description: text
-                            }
-                        },
-                        next: false
-                    });
+                fn({
+                    log: {
+                        "0": {
+                            status: 408,
+                            description: err
+                        }
+                    },
+                    next: false
                 });
             });
             return;
@@ -62,7 +63,6 @@
                     li.id = 'log:' + v.id;
                     li.appendChild(doc.createElement('ul'));
                 }
-                ul.scrollTop = ul.scrollHeight;
                 if (v.next && 'string' === typeof v.next) {
                     ajax(v.next, next);
                 }
@@ -74,13 +74,14 @@
     }
 
     var ul = doc.querySelector('#import-log');
-    doc.querySelector('#import-link').addEventListener('click', function(e) {
+    doc.querySelector('#import-form').addEventListener('submit', function(e) {
         this.setAttribute('disabled', 'disabled');
         var li = doc.createElement('li');
         li.className = 'status:202';
         li.innerHTML = '<p>' + this.getAttribute('data-loading') + '</p>';
         ul.appendChild(li);
-        ajax(this.href, next);
+        var query = new URLSearchParams(new FormData(this));
+        ajax(this.action + '?' + query, next);
         e.preventDefault();
     });
 

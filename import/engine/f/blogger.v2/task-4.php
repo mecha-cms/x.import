@@ -3,9 +3,12 @@
 $index = $query['i'] - 1;
 $index = $index < 0 ? 0 : $index;
 $index = ($index * $query['chunk']) + 1;
-$content = fetch('https://www.blogger.com/feeds/' . $query['blog'] . '/pages/default?alt=json&max-results=' . $query['chunk'] . '&start-index=' . $index);
 
-require __DIR__ . DS . 'f.php';
+$fetch = 'https://www.blogger.com/feeds/' . $query['blog'] . '/pages/default?alt=json&max-results=' . $query['chunk'] . '&start-index=' . $index;
+
+if ($r = require __DIR__ . DS . 'f.php') {
+    return $r;
+}
 
 $create = 0;
 
@@ -20,7 +23,12 @@ if (!empty($data['feed']['entry'])) {
         }
         $file = is_file($f = $folder . DS . 'lot' . DS . 'page' . DS . $n . '.page');
         $title = $v['title']['$t'] ?? null;
-        if (!$safe || !$file) {
+        if (empty($query['o']['page'])) {
+            $log[microtime()] = [
+                'status' => 100,
+                'description' => i('Page importer was disabled by the author.')
+            ];
+        } else if (!$safe || !$file) {
             if (!is_dir($d = Path::F($f))) {
                 mkdir($d, 0775, true);
             }
@@ -58,7 +66,11 @@ if (!empty($data['feed']['entry'])) {
         if ($create > 0) {
             $log[microtime()] = [
                 'status' => 201,
-                'description' => i('%d page' . (1 === $create ? "" : 's') . ' successfully imported to %s', [$create, '<code>' . strtr($folder . DS . 'lot' . DS . 'page', [ROOT => '.']) . '</code>']) . ' ' . i('Done.')
+                'description' => i('%d page' . (1 === $create ? "" : 's') . ' successfully imported to %s', [$create, '<code>' . strtr($folder . DS . 'lot' . DS . 'page', [ROOT => '.']) . '</code>'])
+            ];
+            $log[microtime()] = [
+                'status' => 200,
+                'description' => i('Done.')
             ];
         } else {
             $log[microtime()] = [
@@ -69,7 +81,7 @@ if (!empty($data['feed']['entry'])) {
     } else {
         $log[microtime()] = [
             'status' => 102,
-            'description' => i('Importing next pages...')
+            'description' => i('Importing next pages') . '…'
         ];
         $next = $url . '/.import/blogger.v2/task-4' . $url->query('&', [
             'chunk' => $query['chunk'],
