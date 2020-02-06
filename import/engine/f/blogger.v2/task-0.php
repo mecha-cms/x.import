@@ -7,6 +7,7 @@ if ($r = require __DIR__ . DS . 'f.php') {
 }
 
 foreach ([
+    'asset',
     'comment',
     'page',
     'page' . $query['folder'],
@@ -80,7 +81,7 @@ if ($author) {
 
 $log[microtime()] = [
     'status' => 102,
-    'description' => i('Importing blog details...')
+    'description' => i('Importing blog details') . '…'
 ];
 
 return [

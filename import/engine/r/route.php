@@ -27,7 +27,7 @@ if ($url->path === '/panel/::g::/.import') {
             })($f, $page = new Page(__DIR__ . DS . '..' . DS . '..' . DS . 'about' . DS . $id . '.page')) : [];
         }
         $GLOBALS['_']['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['tools'] = [
-            'title' => empty($_GET['tool']) ? 'Tools' : ['Tool: %s', [$page->title ?? 'Unknown']],
+            'title' => 'Tool' . (empty($_GET['tool']) ? 's' : ""),
             'content' => $content ?? null,
             'lot' => $lot ?? [],
             'stack' => 9.9

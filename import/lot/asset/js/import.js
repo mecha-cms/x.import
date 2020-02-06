@@ -76,6 +76,7 @@
     var ul = doc.querySelector('#import-log');
     doc.querySelector('#import-form').addEventListener('submit', function(e) {
         this.setAttribute('disabled', 'disabled');
+        ul.innerHTML = "";
         var li = doc.createElement('li');
         li.className = 'status:202';
         li.innerHTML = '<p>' + this.getAttribute('data-loading') + '</p>';

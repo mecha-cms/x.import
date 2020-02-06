@@ -10,9 +10,9 @@ if ($r = require __DIR__ . DS . 'f.php') {
     return $r;
 }
 
+$id = md5($query['parent']);
 if (!empty($query['o']['comment'])) {
     $create = 0;
-    $id = md5($query['parent']);
     if ($source) {
         $u = parse_url($source);
         $source = 'http://' . $u['host'];
@@ -78,7 +78,7 @@ if (!empty($query['o']['comment'])) {
         } else {
             $log[microtime()] = [
                 'status' => 102,
-                'description' => i('Importing next comments...'),
+                'description' => i('Importing next comments') . '…',
                 'parent' => $id
             ];
             $next = $url . '/.import/blogger.v2/task-5' . $url->query('&', [
@@ -98,7 +98,8 @@ if (!empty($query['o']['comment'])) {
 } else {
     $log[microtime()] = [
         'status' => 100,
-        'description' => i('Comment importer was disabled by the author.')
+        'description' => i('Comment importer was disabled by the author.'),
+        'parent' => $id
     ];
 }
 

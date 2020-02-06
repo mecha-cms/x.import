@@ -5,6 +5,7 @@ return [
         'type' => 'Form.Get',
         'url' => $url . '/.import/' . basename(__FILE__, '.php') . '/task-0',
         '2' => [
+            'data-loading' => i('Initializing the importer') . '…',
             'id' => 'import-form',
             'target' => '_blank'
         ],
@@ -16,7 +17,7 @@ return [
                 'lot' => [
                     'blog' => [
                         'title' => 'Blog ID',
-                        'description' => ['Your %s blog ID.', ['<strong>Blogger</strong>']],
+                        'description' => ['Your %s blog ID.', ['Blogger']],
                         'type' => 'Text',
                         'pattern' => "^\d+$",
                         'alt' => crc32($_SERVER['REQUEST_TIME']),
@@ -32,7 +33,7 @@ return [
                     ],
                     'url[0]' => [
                         'title' => 'Base URL 1',
-                        'description' => ['Base URL of your %s domain.', ['<strong>Blogger</strong>']],
+                        'description' => ['Base URL of your %s domain.', ['Blogger']],
                         'before' => 'http://',
                         'type' => 'Text',
                         'pattern' => "^[^.\\s]+\\.blogspot(?:\\.[^.\\s]+)+$",
@@ -94,7 +95,7 @@ return [
                 'type' => 'Fields',
                 'lot' => [
                     0 => [
-                        'title' => "",
+                        'title' => 'Log',
                         'type' => 'Field',
                         'content' => '<ul id="import-log"></ul>',
                         'stack' => 10

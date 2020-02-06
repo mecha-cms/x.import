@@ -54,12 +54,20 @@ if (!empty($data['feed']['entry'])) {
                     file_put_contents($d . DS . 'kind.data', json_encode(array_unique($tags)));
                 }
             }
-            file_put_contents($f, To::page(is([
+            $data = [
                 'title' => $title,
                 'author' => $author && isset($v['author'][0]['name']['$t']) && $author === $v['author'][0]['name']['$t'] ? null : $v['author'][0]['name']['$t'],
                 'type' => 'HTML',
                 'content' => $v['content']['$t'] ?? null
-            ], function($v) {
+            ];
+            foreach ($query['f'] ?? [] as $kk => $vv) {
+                if (is_file($fn = __DIR__ . DS . 'f' . DS . $kk . '.php')) {
+                    if (is_callable($fn = require $fn)) {
+                        $data = call_user_func_array($fn, [$f, $data, $query, &$log]);
+                    }
+                }
+            }
+            file_put_contents($f, To::page(is($data, function($v) {
                 return isset($v);
             })));
             $log[microtime()] = [
@@ -78,7 +86,7 @@ if (!empty($data['feed']['entry'])) {
             $id = e(explode('.post-', $v['id']['$t'], 2)[1]);
             $log[microtime()] = [
                 'status' =>102,
-                'description' => i('Found %d comment' . (1 === $count ? "" : 's') . ' in total.', [$count]) . ' ' . i('Importing comments...'),
+                'description' => i('Found %d comment' . (1 === $count ? "" : 's') . ' in total.', [$count]) . ' ' . i('Importing comments') . '…',
                 'id' => md5($id),
                 'next' => $url . '/.import/blogger.v2/task-5' . $url->query('&', [
                     'chunk' => $query['chunk'],
