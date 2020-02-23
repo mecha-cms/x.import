@@ -1,1 +1,0 @@
-<?php return [0=>1580954927,1=>'blogger.v2/task-5',2=>['blog'=>298900102869691923,'chunk'=>10,'folder'=>'/kode','i'=>1,'id'=>'5e3b752f3b015','safe'=>true,'token'=>NULL,'url'=>[0=>NULL,1=>'www.dte.web.id'],'o'=>['post'=>1,'tag'=>1,'page'=>1],'f'=>['link'=>1,'image'=>NULL],'current'=>2,'parent'=>2739492453661307548]];

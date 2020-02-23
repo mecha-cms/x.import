@@ -9,6 +9,9 @@
   width: 50%;
   padding: 18px;
 }
+.import-tools h4 {
+  color: inherit;
+}
 
 #import-log {
   display: block;
@@ -17,9 +20,9 @@
   padding: 0;
   background: #def;
   color: #000;
-  font: normal normal 11px/18px monospace;
+  font-size: 10px;
+  line-height: 20px;
   white-space: nowrap;
-  max-height: 300px;
   overflow: hidden;
 }
 #import-log:empty {
@@ -43,6 +46,16 @@
   padding: 0 2px;
   position: relative;
 }
+#import-log-status {
+  background: #000;
+  color: #fff;
+}
+#import-log-status a {
+  color: inherit;
+  position: absolute;
+  top: 0;
+  right: 2px;
+}
 #import-log li:nth-child(even) {
   background: rgba(0, 0, 0, .025);
 }
@@ -52,8 +65,8 @@
   height: 10px;
   border-radius: 100%;
   position: absolute;
-  top: 4px;
-  left: 4px;
+  top: 5px;
+  left: 5px;
   background: #343a40;
 }
 #import-log li p {
@@ -71,6 +84,7 @@
 #import-log .status\:304::before {
   background: #ffc107;
 }
+#import-log .status\:401::before,
 #import-log .status\:408::before {
   background: #dc3545;
 }

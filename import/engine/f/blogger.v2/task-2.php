@@ -57,13 +57,8 @@ if (!empty($query['o']['tag'])) {
 $count = (int) ($data['feed']['openSearch$totalResults']['$t'] ?? 0);
 
 $log[microtime()] = [
-    'status' => 100,
-    'description' => i('Found %d blog posts in total.', [$count])
-];
-
-$log[microtime()] = [
     'status' => 102,
-    'description' => i('Importing blog ' . (0 === $count ? 'page' : 'post') . 's') . '…'
+    'description' => i('Found %d blog posts in total.', [$count]) . ' ' . i('Importing blog ' . (0 === $count ? 'page' : 'post') . 's') . '…'
 ];
 
 return [

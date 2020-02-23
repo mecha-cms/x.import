@@ -17,12 +17,45 @@ if (!empty($data['feed']['entry'])) {
         $n = uniqid();
         foreach ($v['link'] ?? [] as $vv) {
             if ($source && 'alternate' === $vv['rel']) {
-                $n = substr(strtr(explode('?', $vv['href'], 2)[0], ['https://' => 'http://']), strlen($source) + 1, -strlen('.html'));
+                // Normalize from `https://example.com` to `http://example.com`
+                $href = strtr(trim($vv['href'], '/'), ['https://' => 'http://']);
+                // Normalize from `http://www.example.com` to `http://example.com`
+                $href = preg_replace('/^http:\/\/www\./', 'http://', $href);
+                // Normalize from `http://example.blogspot.*` to `http://example.blogspot.com`
+                $href = preg_replace('/\.blogspot\.[^\s\/]+(.*)$/', '.blogspot.com$1', $href);
+                $n = substr(explode('?', $href, 2)[0], strlen($source) + 1, -strlen('.html'));
                 break;
+            }
+        }
+        $count = count(explode('/', $n));
+        foreach (array_values(step($n, '/')) as $kkk => $vvv) {
+            if (0 === $kkk) {
+                continue;
+            }
+            $file = is_file($f = $folder . DS . 'lot' . DS . 'page' . $query['folder'] . DS . $vvv . '.archive');
+            if (!$safe || !$file) {
+                if (!is_dir($d = Path::F($f))) {
+                    mkdir($d, 0775, true);
+                }
+                $title = basename($vvv);
+                file_put_contents($f, To::page([
+                    'title' => $title,
+                    'deep' => $count - $kkk
+                ]));
+                $log[microtime()] = [
+                    'status' => 201,
+                    'description' => i('Created archive %s', ['<strong>' . $title . '</strong>'])
+                ];
+            } else if ($file) {
+                // $log[microtime()] = [
+                //     'status' => 304,
+                //     'description' => i('File %s already exists.', ['<code>' . strtr($f, [ROOT => '.']) . '</code>'])
+                // ];
             }
         }
         $file = is_file($f = $folder . DS . 'lot' . DS . 'page' . $query['folder'] . DS . $n . '.page');
         $title = $v['title']['$t'] ?? null;
+        $content = $v['content']['$t'] ?? null;
         if (empty($query['o']['post'])) {
             $log[microtime()] = [
                 'status' => 100,
@@ -35,12 +68,12 @@ if (!empty($data['feed']['entry'])) {
             file_put_contents($d . DS . 'blogger.data', json_encode([
                 'id' => explode('.post-', $v['id']['$t'], 2)[1]
             ]));
-            file_put_contents($d . DS . 'time-create.data', date('Y-m-d H:i:s'));
+            file_put_contents($d . DS . 'time-set.data', date('Y-m-d H:i:s'));
             if (isset($v['published']['$t'])) {
                 file_put_contents($d . DS . 'time.data', date('Y-m-d H:i:s', strtotime($v['published']['$t'])));
             }
             if (isset($v['updated']['$t'])) {
-                file_put_contents($d . DS . 'time-update.data', date('Y-m-d H:i:s', strtotime($v['updated']['$t'])));
+                file_put_contents($d . DS . 'time-up.data', date('Y-m-d H:i:s', strtotime($v['updated']['$t'])));
             }
             if (!empty($v['category']) && !empty($query['o']['tag'])) {
                 $tags = [];
@@ -54,20 +87,22 @@ if (!empty($data['feed']['entry'])) {
                     file_put_contents($d . DS . 'kind.data', json_encode(array_unique($tags)));
                 }
             }
-            $data = [
-                'title' => $title,
-                'author' => $author && isset($v['author'][0]['name']['$t']) && $author === $v['author'][0]['name']['$t'] ? null : $v['author'][0]['name']['$t'],
-                'type' => 'HTML',
-                'content' => $v['content']['$t'] ?? null
-            ];
-            foreach ($query['f'] ?? [] as $kk => $vv) {
-                if (is_file($fn = __DIR__ . DS . 'f' . DS . $kk . '.php')) {
-                    if (is_callable($fn = require $fn)) {
-                        $data = call_user_func_array($fn, [$f, $data, $query, &$log]);
+            if (!empty($query['f'])) {
+                foreach ($query['f'] as $fn) {
+                    if ('image' === $fn) {
+                        continue; // Continue below
+                    }
+                    if (!empty($converter[$fn]) && is_callable($converter[$fn])) {
+                        $content = call_user_func($converter[$fn], $content);
                     }
                 }
             }
-            file_put_contents($f, To::page(is($data, function($v) {
+            file_put_contents($f, To::page(is([
+                'title' => $title,
+                'author' => $author && isset($v['author'][0]['name']['$t']) && $author === $v['author'][0]['name']['$t'] ? null : $v['author'][0]['name']['$t'],
+                'type' => 'HTML',
+                'content' => $content
+            ], function($v) {
                 return isset($v);
             })));
             $log[microtime()] = [
@@ -81,20 +116,35 @@ if (!empty($data['feed']['entry'])) {
                 'description' => i('Post %s already exists.', ['<strong>' . ($title ?? basename($f)) . '</strong>'])
             ];
         }
-        $count = (int) ($v['thr$total']['$t'] ?? 0);
-        if ($count > 0) {
-            $id = e(explode('.post-', $v['id']['$t'], 2)[1]);
+        $id = md5($post_id = e(explode('.post-', $v['id']['$t'], 2)[1]));
+        if (!empty($query['f']['image']) && ($count = substr_count($content, '<img ')) > 0) {
             $log[microtime()] = [
-                'status' =>102,
-                'description' => i('Found %d comment' . (1 === $count ? "" : 's') . ' in total.', [$count]) . ' ' . i('Importing comments') . '…',
-                'id' => md5($id),
-                'next' => $url . '/.import/blogger.v2/task-5' . $url->query('&', [
-                    'chunk' => $query['chunk'],
-                    'current' => $query['i'],
-                    'i' => 1,
-                    'parent' => $id
+                'status' => 102,
+                'description' => i('Contains about %d image' . (1 === $count ? "" : 's') . ' in total.', [$count]) . ' ' . i('Downloading image' . (1 === $count ? "" : 's')) . '…',
+                'id' => $id . '-image',
+                'next' => $url . '/.import/blogger.v2/task-6' . $url->query('&', [
+                    'chunk' => false,
+                    'i' => false,
+                    'parent' => $id . '-image',
+                    'target' => strtr($f, [$folder . DS => "", DS => '/'])
                 ])
             ];
+        }
+        if (!empty($query['o']['comment'])) {
+            $count = (int) ($v['thr$total']['$t'] ?? 0);
+            if ($count > 0) {
+                $log[microtime()] = [
+                    'status' =>102,
+                    'description' => i('Found %d comment' . (1 === $count ? "" : 's') . ' in total.', [$count]) . ' ' . i('Importing comments') . '…',
+                    'id' => $id . '-comment',
+                    'next' => $url . '/.import/blogger.v2/task-5' . $url->query('&', [
+                        'chunk' => $query['chunk'],
+                        'i' => 1,
+                        'id' => $post_id,
+                        'parent' => $id . '-comment'
+                    ])
+                ];
+            }
         }
     }
     if ($index + $query['chunk'] >= (int) ($data['feed']['openSearch$totalResults']['$t'] ?? 0)) {

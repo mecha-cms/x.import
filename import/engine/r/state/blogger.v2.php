@@ -15,6 +15,10 @@ return [
                 'description' => $page->description,
                 'type' => 'Fields',
                 'lot' => [
+                    'token' => [
+                         'type' => 'Hidden',
+                         'value' => Guard::token('import')
+                    ],
                     'blog' => [
                         'title' => 'Blog ID',
                         'description' => ['Your %s blog ID.', ['Blogger']],
@@ -42,7 +46,7 @@ return [
                     ],
                     'url[1]' => [
                         'title' => 'Base URL 2',
-                        'description' => 'Base URL of your top level domain if any.',
+                        'description' => 'Base URL of your top level domain (if any).',
                         'before' => 'http://',
                         'type' => 'Text',
                         'pattern' => "^[^.\\s]+(?:\\.[^.\\s]+)+$",
@@ -55,52 +59,84 @@ return [
                         'block' => true,
                         'sort' => false,
                         'lot' => [
-                            'post' => 'Import blog posts.',
-                            'tag' => 'Import blog tags.',
-                            'comment' => 'Import blog comments.',
-                            'page' => 'Import blog static pages.'
+                            'post' => [
+                                'title' => 'Import posts.',
+                                'value' => 1
+                            ],
+                            'page' => [
+                                'title' => 'Import pages.',
+                                'value' => 1
+                            ],
+                            'tag' => [
+                                'title' => 'Import tags.',
+                                'value' => 1
+                            ],
+                            'comment' => [
+                                'title' => 'Import comments.',
+                                'value' => 1
+                            ]
                         ],
                         'value' => [
                             'post' => 1,
-                            'tag' => 1,
-                            'page' => 1
+                            'page' => 1,
+                            'tag' => 1
                         ],
                         'stack' => 40
                     ],
                     'f' => [
-                        'title' => 'Filters',
+                        'title' => 'Converters',
                         'type' => 'Items',
                         'block' => true,
                         'lot' => [
                             'link' => [
                                 'title' => 'Automatically convert old internal URL into relative URL.',
-                                'frozen' => true
+                                'frozen' => true,
+                                'value' => 1
                             ],
                             'p' => [
                                 'active' => $ok = null !== State::get('x.p'),
                                 'title' => 'Convert line-break sequence into paragraph sequence.',
-                                'description' => $ok ? null : 'Missing automatic paragraph extension.'
+                                'description' => $ok ? null : 'Missing automatic paragraph extension.',
+                                'value' => 1
                             ],
-                            'image' => 'Download blog post\'s images and convert post\'s image URL into local image URL.'
+                            'image' => [
+                                'title' => 'Download images in posts and pages and convert its URL into local image URL.',
+                                'value' => 1
+                            ],
+                            'h-t-m-l' => [
+                                'title' => 'Convert XHTML tags to HTML5 tags.',
+                                'description' => 'Convert &lt;br/&gt; to &lt;br&gt;, &lt;b&gt; to &lt;strong&gt;, etc.',
+                                'value' => 1
+                            ]
                         ],
                         'value' => [
-                            'link' => 1
+                            'link' => 1,
+                            'p' => $ok ? 1 : null,
+                            'h-t-m-l' => 1
                         ],
                         'stack' => 50
+                    ],
+                    'safe' => [
+                        'title' => 'Safe Mode',
+                        'alt' => 'Store all blog data to a separate folder.',
+                        'description' => 'You can move those files later, manually, after all importing process has done.',
+                        'type' => 'Toggle',
+                        'value' => true,
+                        'stack' => 60
+                    ],
+                    'is' => [
+                        'title' => '',
+                        'type' => 'Items',
+                        'lot' => [
+                            'author' => [
+                                'title' => 'I am responsible for the actions that I do and I declare that I am the original author of this blog.',
+                                'value' => 1
+                            ]
+                        ],
+                        'stack' => 70
                     ]
                 ],
                 'stack' => 10
-            ],
-            'log' => [
-                'type' => 'Fields',
-                'lot' => [
-                    0 => [
-                        'title' => 'Log',
-                        'type' => 'Field',
-                        'content' => '<ul id="import-log"></ul>',
-                        'stack' => 10
-                    ]
-                ]
             ],
             'tasks' => [
                 'type' => 'Fields',

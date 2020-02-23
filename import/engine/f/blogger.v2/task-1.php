@@ -13,7 +13,8 @@ if (!$safe || !$file) {
         'description' => $data['feed']['subtitle']['$t'],
         'direction' => 'ltr',
         'id' => substr($data['feed']['id']['$t'], strpos($data['feed']['id']['$t'], 'blog-') + 5),
-        'path' => '/blog',
+        'language' => $state->language ?? 'en',
+        'path' => strtr($query['folder'], DS, '/'),
         'title' => $data['feed']['title']['$t'],
         'x' => [
             'page' => [

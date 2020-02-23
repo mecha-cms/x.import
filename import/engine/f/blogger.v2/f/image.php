@@ -7,7 +7,7 @@ return function($f, $data, $query) {
     ) {
         return $data;
     }
-    $data['content'] = preg_replace_callback('/<img(\s[^>].*?)?>/', function($m) use($f, $query) {
+    $data['content'] = preg_replace_callback('/<img(\s[^>]*?)?>/', function($m) use($f, $query) {
         if (false === strpos($m[0], ' src="')) {
             return $m[0];
         }
