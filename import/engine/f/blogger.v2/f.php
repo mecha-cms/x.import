@@ -71,6 +71,55 @@ $converter = [
             '</i>' => '</em>'
         ]);
         return $content;
+    },
+    'link' => function($content) use($query) {
+        $u = $query['url'] ?? [];
+        if (false !== strpos($content, '</a>')) {
+            return preg_replace_callback('/<a(?:\s[^>]*)?>/', function($m) use($u) {
+                $out = $m[0];
+                if (!empty($u[0])) {
+                    $out = strtr($out, [
+                        ' href="' . $u[0] . '"' => '="/"',
+                        ' href="' . $u[0] . '/' => '="/',
+                        ' href="' . $u[0] . '?' => '="?',
+                        ' href="' . $u[0] . '&' => '="?',
+                        ' href="' . $u[0] . '#' => '="#'
+                    ]);
+                }
+                if (!empty($u[1])) {
+                    $out = strtr($out, [
+                        ' href="' . $u[1] . '"' => '="/"',
+                        ' href="' . $u[1] . '/' => '="/',
+                        ' href="' . $u[1] . '?' => '="?',
+                        ' href="' . $u[1] . '&' => '="?',
+                        ' href="' . $u[1] . '#' => '="#'
+                    ]);
+                }
+                // Static page(s) are no longer need the `/p/` prefix
+                if (false !== strpos($out, '/p/')) {
+                    $out = preg_replace('/\/p\/(\S+)\.html\b/', '/$1', $out);
+                }
+                // Remove `.html` extension from URL
+                $out = strtr($out, [
+                    '.html"' => '"',
+                    '.html?' => '?',
+                    '.html&' => '?',
+                    '.html#' => '#'
+                ]);
+                return $out;
+            }, $content);
+        }
+        return $content;
+    },
+    'p' => function($content) {
+        if (false !== strpos($content, '</p>')) {
+            return $content;
+        }
+        if (function_exists($fn = "_\\lot\\x\\p")) {
+            $content = preg_replace('/\s*<br *\/?>\s*/', "\n", $content);
+            $content = fire($fn, [$content], (object) ['type' => 'HTML']);
+        }
+        return $content;
     }
 ];
 

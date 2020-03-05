@@ -164,7 +164,7 @@
         let importLogAborter = doc.createElement('a'),
             importLogAborterSpace = doc.createTextNode(' ');
 
-        importLogAborter.innerHTML = '[\u00d7]';
+        importLogAborter.innerHTML = '\u00d7';
         importLogAborter.href = "";
         importLogAborter.addEventListener('click', function(e) {
             importLogAborterSpace.parentNode.removeChild(importLogAborterSpace);

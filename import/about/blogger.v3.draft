@@ -6,4 +6,4 @@ type: Markdown
 
 Import a site created with Blogger. This option uses Blogger API V3 that requires API key to fetch the site data. You will need to obtain the API key [here](/). This is the preferred method for full detailed import as it will be able to import user-defined meta description data and page views too.
 
-Please note that this API has limited usage due to the Blogger&rsquo;s API security. When you have reached the access quota, you can continue the import proccess later. We will store your current state to a session.
+Please note that this API has limited usage due to the Blogger&rsquo;s API security. When you have reached the access quota, you can continue the import proccess later.

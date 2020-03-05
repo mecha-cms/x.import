@@ -35,22 +35,39 @@ if (!empty($data['feed']['entry'])) {
         $file = is_file($f = $folder . DS . 'lot' . DS . 'comment' . $query['folder'] . DS . $n . DS . date('Y-m-d-H-i-s', strtotime($v['published']['$t'])) . '.page');
         $title = strip_tags($v['title']['$t'] ?? "") ?: null;
         $content = $v['content']['$t'] ?? null;
+        $self = explode('.post-', $v['id']['$t'], 2)[1];
+        $parent = null;
+        $parent_feed = null;
         if (!$safe || !$file) {
             if (!is_dir($d = Path::F($f))) {
                 mkdir($d, 0775, true);
             }
-            file_put_contents($d . DS . 'blogger.data', json_encode([
-                'id' => explode('.post-', $v['id']['$t'], 2)[1]
-            ]));
-            file_put_contents($d . DS . 'time-set.data', date('Y-m-d H:i:s'));
-            if (isset($v['published']['$t'])) {
-                file_put_contents($d . DS . 'time.data', date('Y-m-d H:i:s', strtotime($v['published']['$t'])));
+            foreach ($v['link'] as $vv) {
+                if ('related' === $vv['rel']) {
+                    $a = explode('/', $parent_feed = $vv['href']);
+                    $parent = end($a);
+                    break;
+                }
             }
+            if ($parent && $parent_data = fetch(strtr($parent_feed, ['/default' => '/summary']) . '?alt=json')) {
+                $parent_data = json_decode($parent_data, true);
+                if (!empty($parent_data['entry']['published']['$t'])) {
+                    file_put_contents($d . DS . 'parent.data', date('Y-m-d-H-i-s', strtotime($parent_data['entry']['published']['$t'])));
+                }
+            }
+            // file_put_contents($d . DS . 'blogger.data', json_encode([
+            //     'parent' => $parent,
+            //     'self' => $self
+            // ]));
+            // file_put_contents($d . DS . 'time-set.data', date('Y-m-d H:i:s'));
+            // if (isset($v['published']['$t'])) {
+            //     file_put_contents($d . DS . 'time.data', date('Y-m-d H:i:s', strtotime($v['published']['$t'])));
+            // }
             if (isset($v['updated']['$t'])) {
                 file_put_contents($d . DS . 'time-up.data', date('Y-m-d H:i:s', strtotime($v['updated']['$t'])));
             }
             if (!empty($query['f'])) {
-                foreach ($query['f'] as $fn) {
+                foreach ($query['f'] as $fn => $foo) {
                     if ('image' === $fn) {
                         continue; // Continue below
                     }
@@ -59,8 +76,11 @@ if (!empty($data['feed']['entry'])) {
                     }
                 }
             }
+            $avatar = preg_replace('/\/s\d+(\-c)?\//', '/s80-c/', $v['author'][0]['gd$image']['src'] ?? "");
+            $avatar = preg_replace('/=s\d+(\-c)?$/', '=s80-c', trim($avatar));
             file_put_contents($f, To::page(is([
-                'author' => $author && isset($v['author'][0]['name']['$t']) && $author === $v['author'][0]['name']['$t'] ? null : $v['author'][0]['name']['$t'],
+                'author' => $author && isset($v['author'][0]['name']['$t']) && $author === $v['author'][0]['name']['$t'] ? '@' . To::kebab($author) : ($v['author'][0]['name']['$t'] ?? null),
+                'avatar' => "" !== $avatar ? $avatar : null,
                 'status' => $author && isset($v['author'][0]['name']['$t']) && $author === $v['author'][0]['name']['$t'] ? 1 : 2,
                 'link' => $v['author'][0]['uri']['$t'] ?? null,
                 'type' => 'HTML',
@@ -68,7 +88,6 @@ if (!empty($data['feed']['entry'])) {
             ], function($v) {
                 return isset($v);
             })));
-            // TODO: Download comment avatar!
             $log[microtime()] = [
                 'status' => 201,
                 'description' => i('Comment %s successfully imported to %s', ['<strong>' . ($title ?? basename($f)) . '</strong>', '<code>' . strtr($f, [ROOT => '.']) . '</code>']),

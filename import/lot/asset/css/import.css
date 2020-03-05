@@ -54,7 +54,7 @@
   color: inherit;
   position: absolute;
   top: 0;
-  right: 2px;
+  right: 6px;
 }
 #import-log li:nth-child(even) {
   background: rgba(0, 0, 0, .025);

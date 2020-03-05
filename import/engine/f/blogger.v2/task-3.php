@@ -56,6 +56,7 @@ if (!empty($data['feed']['entry'])) {
         $file = is_file($f = $folder . DS . 'lot' . DS . 'page' . $query['folder'] . DS . $n . '.page');
         $title = $v['title']['$t'] ?? null;
         $content = $v['content']['$t'] ?? null;
+        $self = explode('.post-', $v['id']['$t'], 2)[1];
         if (empty($query['o']['post'])) {
             $log[microtime()] = [
                 'status' => 100,
@@ -65,10 +66,10 @@ if (!empty($data['feed']['entry'])) {
             if (!is_dir($d = Path::F($f))) {
                 mkdir($d, 0775, true);
             }
-            file_put_contents($d . DS . 'blogger.data', json_encode([
-                'id' => explode('.post-', $v['id']['$t'], 2)[1]
-            ]));
-            file_put_contents($d . DS . 'time-set.data', date('Y-m-d H:i:s'));
+            // file_put_contents($d . DS . 'blogger.data', json_encode([
+            //     'self' => $self
+            // ]));
+            // file_put_contents($d . DS . 'time-set.data', date('Y-m-d H:i:s'));
             if (isset($v['published']['$t'])) {
                 file_put_contents($d . DS . 'time.data', date('Y-m-d H:i:s', strtotime($v['published']['$t'])));
             }
@@ -88,7 +89,7 @@ if (!empty($data['feed']['entry'])) {
                 }
             }
             if (!empty($query['f'])) {
-                foreach ($query['f'] as $fn) {
+                foreach ($query['f'] as $fn => $foo) {
                     if ('image' === $fn) {
                         continue; // Continue below
                     }
@@ -99,7 +100,7 @@ if (!empty($data['feed']['entry'])) {
             }
             file_put_contents($f, To::page(is([
                 'title' => $title,
-                'author' => $author && isset($v['author'][0]['name']['$t']) && $author === $v['author'][0]['name']['$t'] ? null : $v['author'][0]['name']['$t'],
+                'author' => $author && isset($v['author'][0]['name']['$t']) && $author === $v['author'][0]['name']['$t'] ? null : ($v['author'][0]['name']['$t'] ?? null),
                 'type' => 'HTML',
                 'content' => $content
             ], function($v) {
