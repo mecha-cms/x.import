@@ -1,0 +1,27 @@
+---
+title: Blogger
+description: This option uses public Blogger feed API to fetch the site data. Make sure you have set the feed content visibility to full.
+type: Markdown
+...
+
+Import a site created with [Blogger](https://www.blogger.com). This option uses public Blogger feed API to fetch the site data. This is the preferred method in general because it just works in most cases. Please note that you can&rsquo;t import the user-defined meta description and page views data simply because these data are not available in the feed resource.
+
+<!-- cut -->
+
+### Blogger Feed Settings
+
+Make sure that you have set the blog feed visibility to full. Go to the Blogger dashboard and look on the side bar. Select _Settings_ &raquo; _Other_ &raquo; _Site feed_. Next to _Allow Blog Feed_, select **Full**. Check your blog feed status by accessing it directly. If you find a `content` property in the entry, it means that your feed is in the full mode and therefore you blog is ready to be imported.
+
+~~~ .txt
+https://www.blogger.com/feeds/29890010286969••••/posts/default?alt=json
+~~~
+
+### Import Form Settings
+
+I assume that you are now in the tool page. on the _Tool_ tab, you will see a _Blog ID_ field. Put your blog ID that you want to import there. To get the blog ID, go to the Blogger dashboard, then look at the URL in the address bar. Your blog ID will be contained as the value of the `blogID` key in the URL parameters.
+
+~~~ .txt
+https://www.blogger.com/blogger.g?blogID=29890010286969••••
+~~~
+
+The safe mode is used to specify a special folder to store files that have been successfully imported. By not checking this option, all files will be automatically saved according to the standard files and folders hierarchy in Mecha and may make your old data to be mixed and replaced with the new data. I suggest you to keep that option checked unless you are importing a blog data on a new installed Mecha CMS site.

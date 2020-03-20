@@ -75,37 +75,30 @@ $converter = [
     'link' => function($content) use($query) {
         $u = $query['url'] ?? [];
         if (false !== strpos($content, '</a>')) {
-            return preg_replace_callback('/<a(?:\s[^>]*)?>/', function($m) use($u) {
+            return preg_replace_callback('/<a(?:\s[^>]*)?>/', function($m) use($query, $u) {
                 $out = $m[0];
+                $out = preg_replace_callback('/ href="(\/[^?&#].*?)(?:\.html)?([?&#].*)?"/', function($m) use($query) {
+                    if (0 === strpos($m[1], '/p/')) {
+                        return ' href="' . substr($m[1], 2) . ($m[2] ?? "") . '"';
+                    }
+                    return ' href="' . $query['folder'] . $m[1] . ($m[2] ?? "") . '"';
+                }, $out);
                 if (!empty($u[0])) {
-                    $out = strtr($out, [
-                        ' href="' . $u[0] . '"' => '="/"',
-                        ' href="' . $u[0] . '/' => '="/',
-                        ' href="' . $u[0] . '?' => '="?',
-                        ' href="' . $u[0] . '&' => '="?',
-                        ' href="' . $u[0] . '#' => '="#'
-                    ]);
+                    $out = preg_replace_callback('/ href="(?:(?:https?:)?\/\/(?:' . x($u[0]) . '))([^?&#]*?)(?:\.html)?([?&#].*)?"/', function($m) use($query) {
+                        if (0 === strpos($m[1], '/p/')) {
+                            return ' href="' . substr($m[1], 2) . ($m[2] ?? "") . '"';
+                        }
+                        return ' href="' . $query['folder'] . $m[1] . ($m[2] ?? "") . '"';
+                    }, $out);
                 }
                 if (!empty($u[1])) {
-                    $out = strtr($out, [
-                        ' href="' . $u[1] . '"' => '="/"',
-                        ' href="' . $u[1] . '/' => '="/',
-                        ' href="' . $u[1] . '?' => '="?',
-                        ' href="' . $u[1] . '&' => '="?',
-                        ' href="' . $u[1] . '#' => '="#'
-                    ]);
+                    $out = preg_replace_callback('/ href="(?:(?:https?:)?\/\/(?:' . x($u[1]) . '))([^?&#]*?)(?:\.html)?([?&#].*)?"/', function($m) use($query) {
+                        if (0 === strpos($m[1], '/p/')) {
+                            return ' href="' . substr($m[1], 2) . ($m[2] ?? "") . '"';
+                        }
+                        return ' href="' . $query['folder'] . $m[1] . ($m[2] ?? "") . '"';
+                    }, $out);
                 }
-                // Static page(s) are no longer need the `/p/` prefix
-                if (false !== strpos($out, '/p/')) {
-                    $out = preg_replace('/\/p\/(\S+)\.html\b/', '/$1', $out);
-                }
-                // Remove `.html` extension from URL
-                $out = strtr($out, [
-                    '.html"' => '"',
-                    '.html?' => '?',
-                    '.html&' => '?',
-                    '.html#' => '#'
-                ]);
                 return $out;
             }, $content);
         }

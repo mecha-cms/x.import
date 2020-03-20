@@ -115,7 +115,7 @@ if (!empty($data['feed']['entry'])) {
             'description' => i('Importing next comments') . '…',
             'parent' => $id
         ];
-        $next = $url . '/.import/blogger.v2/task-5' . $url->query('&', [
+        $next = $url . '/.import/blogger/task-5' . $url->query('&', [
             'chunk' => $query['chunk'],
             'i' => $query['i'] + 1
         ]);

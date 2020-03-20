@@ -1,7 +1,9 @@
 ---
-title: Wordpress
-description: ""
+title: WordPress
+description: This option uses public WordPress feed API to fetch the site data.
 type: Markdown
 ...
 
-Import a site created with Wordpress.
+Import a site created with [WordPress](https://wordpress.com). This option uses public WordPress feed API to fetch the site data.
+
+<!-- cut -->

@@ -43,5 +43,5 @@ $log[microtime()] = [
 
 return [
     'log' => $log,
-    'next' => $next ?? $url . '/.import/blogger.v2/task-2' . $url->query
+    'next' => $next ?? $url . '/.import/blogger/task-2' . $url->query
 ];

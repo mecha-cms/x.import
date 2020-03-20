@@ -63,7 +63,7 @@ $log[microtime()] = [
 
 return [
     'log' => $log,
-    'next' => $next ?? $url . '/.import/blogger.v2/task-' . (0 === $count ? '4' : '3' . $url->query('&', [
+    'next' => $next ?? $url . '/.import/blogger/task-' . (0 === $count ? '4' : '3' . $url->query('&', [
         'chunk' => $query['chunk'],
         'i' => 1
     ]))

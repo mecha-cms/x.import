@@ -28,6 +28,7 @@ return [
                         'stack' => 10
                     ],
                     'folder' => [
+                        'title' => 'Blog Path',
                         'description' => ['Folder path relative to %s to store the blog posts.', ['<code>' . strtr(LOT . DS . 'page', [ROOT => '.']) . '</code>']],
                         'type' => 'Text',
                         'pattern' => "^[\\\\/][a-z\\d]+([_.-][a-z\\d]+)*([\\\\/][a-z\\d]+([_.-][a-z\\d]+)*)*$",
@@ -36,7 +37,7 @@ return [
                         'stack' => 20
                     ],
                     'url[0]' => [
-                        'title' => 'Base URL 1',
+                        'title' => 'Blog URL 1',
                         'description' => ['Base URL of your %s domain.', ['Blogger']],
                         'before' => 'http://',
                         'type' => 'Text',
@@ -45,7 +46,7 @@ return [
                         'stack' => 30
                     ],
                     'url[1]' => [
-                        'title' => 'Base URL 2',
+                        'title' => 'Blog URL 2',
                         'description' => 'Base URL of your top level domain (if any).',
                         'before' => 'http://',
                         'type' => 'Text',

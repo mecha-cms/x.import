@@ -9,15 +9,16 @@ Route::set('.import/:service/:task', 200, function($service, $task) {
             'folder' => '/blog',
             'i' => 1, // Start index
             'id' => uniqid(),
-            'safe' => true, // TODO: Change to 'false'
+            'safe' => true,
             'token' => null // Access token from the Panel
         ], e($_GET));
         $this->content(json_encode((function($f) use($query) {
             extract($GLOBALS, EXTR_SKIP);
             if (empty($query['is']['author'])) {
+                $time = microtime();
                 return [
                     'log' => [
-                        microtime() => [
+                        $time => [
                             'status' => 401,
                             'description' => i('Please state that you are the original author of the blog.')
                         ]

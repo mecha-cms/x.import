@@ -1,0 +1,12 @@
+---
+title: Importer
+description: Import blog data from other blog services.
+author: Taufik Nurrohman
+type: Markdown
+version: 0.0.1
+
+use:
+  '.\lot\x\panel': 1
+...
+
+Currently supports Blogger blog service. Consider to make a [bounty](https://mecha-cms.com/support/bounty "Feature as a Service") if you want to have other blog services to be featured in this extension.

@@ -80,7 +80,7 @@ if (!empty($data['feed']['entry'])) {
             'status' => 102,
             'description' => i('Contains about %d image' . (1 === $count ? "" : 's') . ' in total.', [$count]) . ' ' . i('Downloading image' . (1 === $count ? "" : 's')) . '…',
             'id' => $id . '-image',
-            'next' => $url . '/.import/blogger.v2/task-6' . $url->query('&', [
+            'next' => $url . '/.import/blogger/task-6' . $url->query('&', [
                 'chunk' => false,
                 'i' => false,
                 'parent' => $id . '-image',
@@ -104,7 +104,7 @@ if (!empty($data['feed']['entry'])) {
             'status' => 102,
             'description' => i('Importing next pages') . '…'
         ];
-        $next = $url . '/.import/blogger.v2/task-4' . $url->query('&', [
+        $next = $url . '/.import/blogger/task-4' . $url->query('&', [
             'chunk' => $query['chunk'],
             'i' => $query['i'] + 1
         ]);
