@@ -18,9 +18,10 @@ https://www.blogger.com/feeds/29890010286969••••/posts/default?alt=json
 
 ### Import Form Settings
 
-I assume that you are now in the tool page. on the _Tool_ tab, you will see a _Blog ID_ field. Put your blog ID that you want to import there. To get the blog ID, go to the Blogger dashboard, then look at the URL in the address bar. Your blog ID will be contained as the value of the `blogID` key in the URL parameters.
+I assume that you are now in the tool page. on the _Tool_ tab, you will see a _Blog ID_ field. Put your blog ID that you want to import there. To get the blog ID, go to the Blogger dashboard, then look at the URL in the address bar. Your blog ID will be contained as the value of the `blogID` key in the URL parameters or at the end of the URL path.
 
 ~~~ .txt
+https://www.blogger.com/blog/posts/29890010286969••••
 https://www.blogger.com/blogger.g?blogID=29890010286969••••
 ~~~
 

@@ -50,7 +50,14 @@ if (!empty($data['feed']['entry'])) {
                         continue; // Continue below
                     }
                     if (!empty($converter[$fn]) && is_callable($converter[$fn])) {
-                        $content = call_user_func($converter[$fn], $content);
+                        $out = call_user_func($converter[$fn], $content);
+                        $content = $out[0];
+                        if ('link' === $fn && !empty($out[1])) {
+                            // TODO: Store link(s) to kick.tsv
+                            foreach ($out[1] as $kk => $vv) {
+                                
+                            }
+                        }
                     }
                 }
             }

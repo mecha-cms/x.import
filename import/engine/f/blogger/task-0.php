@@ -28,6 +28,19 @@ foreach ([
     }
 }
 
+if (!is_file($f = $folder . DS . 'lot' . DS . 'page' . DS . 'kick.tsv')) {
+    touch($f);
+    $log[microtime()] = [
+        'status' => 201,
+        'description' => i('Created file %s', ['<code>' . strtr($f, [ROOT => '.']) . '</code>'])
+    ];
+} else {
+    $log[microtime()] = [
+        'status' => 304,
+        'description' => i('File %s already exists.', ['<code>' . strtr($f, [ROOT => '.']) . '</code>'])
+    ];
+}
+
 $file = is_file($f = $folder . DS . 'lot' . DS . 'page' . $query['folder'] . '.page');
 if (!$safe || !$file) {
     file_put_contents(Path::F($f) . DS . 'time.data', date('Y-m-d H:i:s'));

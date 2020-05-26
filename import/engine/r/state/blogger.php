@@ -2,27 +2,28 @@
 
 return [
     'form' => [
-        'type' => 'Form.Get',
+        'type' => 'form/get',
         'url' => $url . '/.import/' . basename(__FILE__, '.php') . '/task-0',
         '2' => [
             'data-loading' => i('Initializing the importer') . '…',
             'id' => 'import-form',
+            'name' => 'import',
             'target' => '_blank'
         ],
         'lot' => [
             'fields' => [
                 'title' => $page->title,
                 'description' => $page->description,
-                'type' => 'Fields',
+                'type' => 'fields',
                 'lot' => [
                     'token' => [
-                         'type' => 'Hidden',
+                         'type' => 'hidden',
                          'value' => Guard::token('import')
                     ],
                     'blog' => [
                         'title' => 'Blog ID',
                         'description' => ['Your %s blog ID.', ['Blogger']],
-                        'type' => 'Text',
+                        'type' => 'text',
                         'pattern' => "^\d+$",
                         'alt' => crc32($_SERVER['REQUEST_TIME']),
                         'stack' => 10
@@ -30,7 +31,7 @@ return [
                     'folder' => [
                         'title' => 'Blog Path',
                         'description' => ['Folder path relative to %s to store the blog posts.', ['<code>' . strtr(LOT . DS . 'page', [ROOT => '.']) . '</code>']],
-                        'type' => 'Text',
+                        'type' => 'text',
                         'pattern' => "^[\\\\/][a-z\\d]+([_.-][a-z\\d]+)*([\\\\/][a-z\\d]+([_.-][a-z\\d]+)*)*$",
                         'alt' => '/article',
                         'value' => '/blog',
@@ -40,7 +41,7 @@ return [
                         'title' => 'Blog URL 1',
                         'description' => ['Base URL of your %s domain.', ['Blogger']],
                         'before' => 'http://',
-                        'type' => 'Text',
+                        'type' => 'text',
                         'pattern' => "^[^.\\s]+\\.blogspot(?:\\.[^.\\s]+)+$",
                         'alt' => S . i('example') . '.blogspot.com' . S,
                         'stack' => 30
@@ -49,14 +50,14 @@ return [
                         'title' => 'Blog URL 2',
                         'description' => 'Base URL of your top level domain (if any).',
                         'before' => 'http://',
-                        'type' => 'Text',
+                        'type' => 'text',
                         'pattern' => "^[^.\\s]+(?:\\.[^.\\s]+)+$",
                         'alt' => S . i('example') . '.com' . S,
                         'stack' => 31
                     ],
                     'o' => [
                         'title' => 'Options',
-                        'type' => 'Items',
+                        'type' => 'items',
                         'block' => true,
                         'sort' => false,
                         'lot' => [
@@ -86,7 +87,7 @@ return [
                     ],
                     'f' => [
                         'title' => 'Converters',
-                        'type' => 'Items',
+                        'type' => 'items',
                         'block' => true,
                         'lot' => [
                             'link' => [
@@ -121,13 +122,13 @@ return [
                         'title' => 'Safe Mode',
                         'alt' => 'Store all blog data to a separate folder.',
                         'description' => 'You can move those files later, manually, after all importing process has done.',
-                        'type' => 'Toggle',
+                        'type' => 'toggle',
                         'value' => true,
                         'stack' => 60
                     ],
                     'is' => [
-                        'title' => '',
-                        'type' => 'Items',
+                        'title' => "",
+                        'type' => 'items',
                         'lot' => [
                             'author' => [
                                 'title' => 'I am responsible for the actions that I do and I declare that I am the original author of this blog.',
@@ -140,19 +141,19 @@ return [
                 'stack' => 10
             ],
             'tasks' => [
-                'type' => 'Fields',
+                'type' => 'fields',
                 'tags' => ['mt:2'],
                 'lot' => [
                     0 => [
                         'title' => "",
-                        'type' => 'Field',
+                        'type' => 'field',
                         'lot' => [
                             'tasks' => [
-                                'type' => 'Tasks.Button',
+                                'type' => 'tasks/button',
                                 'lot' => [
                                     'g' => [
                                         'title' => 'Import',
-                                        'type' => 'Submit',
+                                        'type' => 'submit',
                                         'name' => false,
                                         'stack' => 10
                                     ]

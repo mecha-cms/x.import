@@ -49,7 +49,7 @@ if ($source) {
     // Normalize from `http://www.example.com` to `http://example.com`
     $source = preg_replace('/^http:\/\/www\./', 'http://', $source);
     // Normalize from `http://example.blogspot.*` to `http://example.blogspot.com`
-    $source = preg_replace('/\.blogspot\.\S+$/', '.blogspot.com', $source);
+    $source = preg_replace('/\.blogspot\.[^\s\/]+$/', '.blogspot.com', $source);
 }
 
 $host = explode('://', $source, 2)[1] ?? $query['id'];
@@ -70,39 +70,46 @@ $converter = [
             '</b>' => '</strong>',
             '</i>' => '</em>'
         ]);
-        return $content;
+        return [$content, []];
     },
     'link' => function($content) use($query) {
         $u = $query['url'] ?? [];
+        $kicks = [];
         if (false !== strpos($content, '</a>')) {
-            return preg_replace_callback('/<a(?:\s[^>]*)?>/', function($m) use($query, $u) {
+            return preg_replace_callback('/<a(?:\s[^>]*)?>/', function($m) use(&$kicks, $query, $u) {
                 $out = $m[0];
-                $out = preg_replace_callback('/ href="(\/[^?&#].*?)(?:\.html)?([?&#].*)?"/', function($m) use($query) {
+                $out = preg_replace_callback('/ href="(\/[^?&#].*?)(?:\.html)?([?&#].*)?"/', function($m) use(&$kicks, $query) {
                     if (0 === strpos($m[1], '/p/')) {
-                        return ' href="' . substr($m[1], 2) . ($m[2] ?? "") . '"';
+                        $kicks[$m[1] . ($m[2] ?? "")] = $kick = substr($m[1], 2) . ($m[2] ?? "");
+                        return ' href="' . $kick . '"';
                     }
-                    return ' href="' . $query['folder'] . $m[1] . ($m[2] ?? "") . '"';
+                    $kicks[$m[1] . ($m[2] ?? "")] = $kick = $query['folder'] . $m[1] . ($m[2] ?? "");
+                    return ' href="' . $kick . '"';
                 }, $out);
                 if (!empty($u[0])) {
-                    $out = preg_replace_callback('/ href="(?:(?:https?:)?\/\/(?:' . x($u[0]) . '))([^?&#]*?)(?:\.html)?([?&#].*)?"/', function($m) use($query) {
+                    $out = preg_replace_callback('/ href="(?:(?:https?:)?\/\/(?:' . x($u[0]) . '))([^?&#]*?)(?:\.html)?([?&#].*)?"/', function($m) use(&$kicks, $query) {
                         if (0 === strpos($m[1], '/p/')) {
-                            return ' href="' . substr($m[1], 2) . ($m[2] ?? "") . '"';
+                            $kicks[$m[1] . ($m[2] ?? "")] = $kick = substr($m[1], 2) . ($m[2] ?? "");
+                            return ' href="' . $kick . '"';
                         }
-                        return ' href="' . $query['folder'] . $m[1] . ($m[2] ?? "") . '"';
+                        $kicks[$m[1] . ($m[2] ?? "")] = $kick = $query['folder'] . $m[1] . ($m[2] ?? "");
+                        return ' href="' . $kick . '"';
                     }, $out);
                 }
                 if (!empty($u[1])) {
-                    $out = preg_replace_callback('/ href="(?:(?:https?:)?\/\/(?:' . x($u[1]) . '))([^?&#]*?)(?:\.html)?([?&#].*)?"/', function($m) use($query) {
+                    $out = preg_replace_callback('/ href="(?:(?:https?:)?\/\/(?:' . x($u[1]) . '))([^?&#]*?)(?:\.html)?([?&#].*)?"/', function($m) use(&$kicks, $query) {
                         if (0 === strpos($m[1], '/p/')) {
-                            return ' href="' . substr($m[1], 2) . ($m[2] ?? "") . '"';
+                            $kicks[$m[1] . ($m[2] ?? "")] = $kick = substr($m[1], 2) . ($m[2] ?? "");
+                            return ' href="' . $kick . '"';
                         }
-                        return ' href="' . $query['folder'] . $m[1] . ($m[2] ?? "") . '"';
+                        $kicks[$m[1] . ($m[2] ?? "")] = $kick = $query['folder'] . $m[1] . ($m[2] ?? "");
+                        return ' href="' . $kick . '"';
                     }, $out);
                 }
                 return $out;
             }, $content);
         }
-        return $content;
+        return [$content, $kicks];
     },
     'p' => function($content) {
         if (false !== strpos($content, '</p>')) {
@@ -112,7 +119,7 @@ $converter = [
             $content = preg_replace('/\s*<br *\/?>\s*/', "\n", $content);
             $content = fire($fn, [$content], (object) ['type' => 'HTML']);
         }
-        return $content;
+        return [$content, []];
     }
 ];
 
