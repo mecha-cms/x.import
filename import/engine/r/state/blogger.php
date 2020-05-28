@@ -6,7 +6,6 @@ return [
         'url' => $url . '/.import/' . basename(__FILE__, '.php') . '/task-0',
         '2' => [
             'data-loading' => i('Initializing the importer') . '…',
-            'id' => 'import-form',
             'name' => 'import',
             'target' => '_blank'
         ],

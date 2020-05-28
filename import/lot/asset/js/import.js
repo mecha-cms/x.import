@@ -3,8 +3,8 @@
     function onChange() {
 
         let queue = [{}, 0, 0, 0], // [request(s), loading, loaded, failed]
-            importForm = doc.querySelector('#import-form'),
-            importLog = doc.querySelector('#import-log'),
+            importForm = doc.forms['import'],
+            importLog = doc.querySelector('.import-log'),
             importLogItem,
             importLogStatus = doc.createElement('li'),
             importLogTab = doc.querySelector('.lot\\:tab a[data-name="log"]');
@@ -20,69 +20,40 @@
 
         function ajax(url, fn) {
             ++queue[1];
-            if ('function' === typeof fetch) {
-                let controller = new AbortController,
-                    signal = controller.signal;
-                fetch(url, {
-                    headers: new Headers({
-                        'X-Requested-With': 'XHR'
-                    }),
-                    method: 'get',
-                    signal: signal
-                }).then(function(response) {
-                    if (!response.ok) {
-                        ++queue[3];
-                        update();
-                        throw Error(response.statusText);
-                    }
-                    return response.json();
-                }).then(function(json) {
-                    fn(json);
-                    --queue[1];
-                    ++queue[2];
-                    update();
-                }).catch(function(err) {
+            let controller = new AbortController,
+                signal = controller.signal;
+            fetch(url, {
+                headers: new Headers({
+                    'X-Requested-With': 'XHR'
+                }),
+                method: 'get',
+                signal: signal
+            }).then(function(response) {
+                if (!response.ok) {
                     ++queue[3];
-                    let data = {
-                        log: {},
-                        next: false
-                    };
-                    data.log['0 ' + (Date.now() / 1000)] = {
-                        status: 408,
-                        description: err
-                    };
-                    fn(data);
                     update();
-                });
-                queue[0][url] = controller;
-            } else {
-                const xhr = new XMLHttpRequest;
-                xhr.addEventListener('readystatechange', function() {
-                    if (4 === xhr.readyState && 200 === xhr.status) {
-                        fn(JSON.parse(xhr.responseText));
-                        --queue[1];
-                        ++queue[2];
-                        update();
-                    }
-                });
-                xhr.addEventListener('error', function() {
-                    ++queue[3];
-                    let data = {
-                        log: {},
-                        next: false
-                    };
-                    data.log['0 ' + (Date.now() / 1000)] = {
-                        status: 408,
-                        description: 'Network error.'
-                    };
-                    fn(data);
-                    update();
-                });
-                xhr.open('GET', url, true);
-                xhr.setRequestHeader('X-Requested-With', 'XHR');
-                xhr.send();
-                queue[0][url] = xhr;
-            }
+                    throw Error(response.statusText);
+                }
+                return response.json();
+            }).then(function(json) {
+                fn(json);
+                --queue[1];
+                ++queue[2];
+                update();
+            }).catch(function(err) {
+                ++queue[3];
+                let data = {
+                    log: {},
+                    next: false
+                };
+                data.log['0 ' + (Date.now() / 1000)] = {
+                    status: 408,
+                    description: err
+                };
+                fn(data);
+                update();
+            });
+            queue[0][url] = controller;
             update();
         }
 
@@ -126,7 +97,7 @@
 
         function update() {
             if (importLogStatus) {
-                importLogStatus.className = 'status:' + (queue[3] > 0 ? '408' : (0 === queue[1] ? '201' : '102'));
+                importLogStatus.className = 'import-log-status status:' + (queue[3] > 0 ? '408' : (0 === queue[1] ? '201' : '102'));
                 importLogStatus.children[0].innerHTML = '[Request: ' + Object.keys(queue[0]).length + '] [Loading: ' + queue[1] + '] [Loaded: ' + queue[2] + '] [Failed: ' + queue[3] + ']';
             }
         }
@@ -155,7 +126,7 @@
             e.preventDefault();
         });
 
-        importLogStatus.id = 'import-log-status';
+        importLogStatus.className = 'import-log-status';
         importLogStatus.innerHTML = '<p></p>';
         importLog.appendChild(importLogStatus);
 
