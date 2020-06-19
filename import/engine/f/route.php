@@ -1,13 +1,13 @@
 <?php
 
 namespace _\lot\x\panel\route {
-    function __import($_, $lot) {
+    function __import($_) {
         if ('g' !== $_['task']) {
             return;
         }
         extract($GLOBALS, \EXTR_SKIP);
         $_['lot']['desk']['lot']['form']['lot'][0]['hidden'] = true;
-        if (empty($lot['tool'])) {
+        if (empty($_['form']['tool'])) {
             $content = "";
             $content .= '<ul class="import-tools">';
             foreach (\g(__DIR__ . \DS . '..' . \DS . '..' . \DS . 'about', 'archive,draft,page') as $k => $v) {
@@ -24,7 +24,7 @@ namespace _\lot\x\panel\route {
             }
             $content .= '</ul>';
         } else {
-            $id = \basename(\strip_tags($lot['tool']));
+            $id = \basename(\strip_tags($_['form']['tool']));
             $page = new \Page(__DIR__ . \DS . '..' . \DS . '..' . \DS . 'about' . \DS . $id . '.page');
             $fields = \is_file($f = __DIR__ . \DS . '..' . \DS . 'r' . \DS . 'state' . \DS . $id . '.php') ? (function($f, $page) {
                 extract($GLOBALS, \EXTR_SKIP);
@@ -51,7 +51,7 @@ namespace _\lot\x\panel\route {
             ];
         }
         $_['lot']['desk']['lot']['form']['lot'][1]['lot']['tabs']['lot']['tools'] = [
-            'title' => 'Tool' . (empty($lot['tool']) ? 's' : ""),
+            'title' => 'Tool' . (empty($_['form']['tool']) ? 's' : ""),
             'content' => $content ?? null,
             'lot' => $fields ?? [],
             'stack' => 9.9
