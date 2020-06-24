@@ -59,7 +59,7 @@ $folder = $safe ? LOT . DS . '.import' . DS . 'blogger.com' . DS . $host : ROOT;
 $converter = [
     'h-t-m-l' => function($content) {
         if (!$content) {
-            return $content;
+            return [$content, []];
         }
         if (false !== strpos($content, '/>')) {
             $content = preg_replace('/<(hr|img|input)(\s[^>]*)? *\/?>/', '<$1$2>', $content);
@@ -76,7 +76,7 @@ $converter = [
         $u = $query['url'] ?? [];
         $kicks = [];
         if (false !== strpos($content, '</a>')) {
-            return preg_replace_callback('/<a(?:\s[^>]*)?>/', function($m) use(&$kicks, $query, $u) {
+            $content = preg_replace_callback('/<a(?:\s[^>]*)?>/', function($m) use(&$kicks, $query, $u) {
                 $out = $m[0];
                 $out = preg_replace_callback('/ href="(\/[^?&#].*?)(?:\.html)?([?&#].*)?"/', function($m) use(&$kicks, $query) {
                     if (0 === strpos($m[1], '/p/')) {
@@ -113,7 +113,7 @@ $converter = [
     },
     'p' => function($content) {
         if (false !== strpos($content, '</p>')) {
-            return $content;
+            return [$content, []];
         }
         if (function_exists($fn = "_\\lot\\x\\p")) {
             $content = preg_replace('/\s*<br *\/?>\s*/', "\n", $content);
