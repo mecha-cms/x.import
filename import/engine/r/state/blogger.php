@@ -108,6 +108,10 @@ return [
                                 'title' => 'Convert XHTML tags to HTML5 tags.',
                                 'description' => 'Convert &lt;br/&gt; to &lt;br&gt;, &lt;b&gt; to &lt;strong&gt;, etc.',
                                 'value' => 1
+                            ],
+                            'blogger' => [
+                                'title' => 'Run all filters applied to the <code>blogger.fix</code> hook.',
+                                'value' => 1
                             ]
                         ],
                         'value' => [

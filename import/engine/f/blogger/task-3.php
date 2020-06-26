@@ -99,7 +99,7 @@ if (!empty($data['feed']['entry'])) {
                         if ('link' === $fn && !empty($out[1])) {
                             // TODO: Store link(s) to kick.tsv
                             foreach ($out[1] as $kk => $vv) {
-                                
+
                             }
                         }
                     }

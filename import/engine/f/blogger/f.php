@@ -62,7 +62,12 @@ $converter = [
             return [$content, []];
         }
         if (false !== strpos($content, '/>')) {
-            $content = preg_replace('/<(hr|img|input)(\s[^>]*)? *\/?>/', '<$1$2>', $content);
+            $content = preg_replace('/<(br|hr|img|input)(\s[^>]*)?\s*\/?>/', '<$1$2>', $content);
+        }
+        if (false !== strpos($content, '</pre>')) {
+            $content = preg_replace_callback('/<pre(\s[^>]*)?>[\s\S]*?<\/pre>/', function($m) {
+                return preg_replace('/<br(\s[^>]*)?\s*\/?>/', "\n", $m[0]);
+            }, $content);
         }
         $content = strtr($content, [
             '<b>' => '<strong>',
@@ -79,6 +84,10 @@ $converter = [
             $content = preg_replace_callback('/<a(?:\s[^>]*)?>/', function($m) use(&$kicks, $query, $u) {
                 $out = $m[0];
                 $out = preg_replace_callback('/ href="(\/[^?&#].*?)(?:\.html)?([?&#].*)?"/', function($m) use(&$kicks, $query) {
+                    // Skip URL with relative protocol(s)
+                    if (0 === strpos($m[1], '//')) {
+                        return $m[0];
+                    }
                     if (0 === strpos($m[1], '/p/')) {
                         $kicks[$m[1] . ($m[2] ?? "")] = $kick = substr($m[1], 2) . ($m[2] ?? "");
                         return ' href="' . $kick . '"';
@@ -88,6 +97,10 @@ $converter = [
                 }, $out);
                 if (!empty($u[0])) {
                     $out = preg_replace_callback('/ href="(?:(?:https?:)?\/\/(?:' . x($u[0]) . '))([^?&#]*?)(?:\.html)?([?&#].*)?"/', function($m) use(&$kicks, $query) {
+                        // Skip URL with relative protocol(s)
+                        if (0 === strpos($m[1], '//')) {
+                            return $m[0];
+                        }
                         if (0 === strpos($m[1], '/p/')) {
                             $kicks[$m[1] . ($m[2] ?? "")] = $kick = substr($m[1], 2) . ($m[2] ?? "");
                             return ' href="' . $kick . '"';
@@ -98,6 +111,10 @@ $converter = [
                 }
                 if (!empty($u[1])) {
                     $out = preg_replace_callback('/ href="(?:(?:https?:)?\/\/(?:' . x($u[1]) . '))([^?&#]*?)(?:\.html)?([?&#].*)?"/', function($m) use(&$kicks, $query) {
+                        // Skip URL with relative protocol(s)
+                        if (0 === strpos($m[1], '//')) {
+                            return $m[0];
+                        }
                         if (0 === strpos($m[1], '/p/')) {
                             $kicks[$m[1] . ($m[2] ?? "")] = $kick = substr($m[1], 2) . ($m[2] ?? "");
                             return ' href="' . $kick . '"';
@@ -116,9 +133,13 @@ $converter = [
             return [$content, []];
         }
         if (function_exists($fn = "_\\lot\\x\\p")) {
-            $content = preg_replace('/\s*<br *\/?>\s*/', "\n", $content);
+            $content = preg_replace('/\s*<br\s*\/?>\s*/', "\n", $content);
             $content = fire($fn, [$content], (object) ['type' => 'HTML']);
         }
+        return [$content, []];
+    },
+    'blogger' => function($content) {
+        $content = Hook::fire('blogger.fix', [$content]);
         return [$content, []];
     }
 ];
