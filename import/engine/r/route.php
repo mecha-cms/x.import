@@ -5,7 +5,7 @@ Route::set('.import/:service/:task', 200, function($service, $task) {
     if (is_file($f = __DIR__ . DS . '..' . DS . 'f' . DS . $service . DS . $task . '.php')) {
         $query = array_replace([
             'blog' => null, // Blog ID
-            'chunk' => 10,
+            'chunk' => 50,
             'folder' => '/blog',
             'i' => 1, // Start index
             'id' => uniqid(),

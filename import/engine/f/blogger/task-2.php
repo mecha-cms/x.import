@@ -7,7 +7,6 @@ if ($r = require __DIR__ . DS . 'f.php') {
 }
 
 if (!empty($query['o']['tag'])) {
-    $create = 0;
     if (!empty($data['feed']['category'])) {
         foreach ($data['feed']['category'] as $k => $v) {
             $n = To::kebab($title = $v['term'] ?? $k + 1);
@@ -27,7 +26,6 @@ if (!empty($query['o']['tag'])) {
                     'status' => 201,
                     'description' => i('Tag %s successfully imported to %s', ['<strong>' . $title . '</strong>', '<code>' . strtr($f, [ROOT => '.']) . '</code>'])
                 ];
-                ++$create;
             } else if ($file) {
                 $log[microtime()] = [
                     'status' => 304,
@@ -36,17 +34,10 @@ if (!empty($query['o']['tag'])) {
             }
         }
     }
-    if ($create > 0) {
-        $log[microtime()] = [
-            'status' => 201,
-            'description' => i('%d tag' . (1 === $create ? "" : 's') . ' successfully imported to %s', [$create, '<code>' . strtr($folder . DS . 'lot' . DS . 'tag', [ROOT => '.']) . '</code>'])
-        ];
-    } else {
-        $log[microtime()] = [
-            'status' => 100,
-            'description' => i('Continue') . '…'
-        ];
-    }
+    $log[microtime()] = [
+        'status' => 100,
+        'description' => i('Continue') . '…'
+    ];
 } else {
     $log[microtime()] = [
         'status' => 100,

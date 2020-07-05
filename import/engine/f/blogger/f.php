@@ -77,49 +77,53 @@ $converter = [
         ]);
         return [$content, []];
     },
+    'hooks' => function($content) {
+        $content = Hook::fire('BLOGGER_CONTENT', [$content]);
+        return [$content, []];
+    },
     'link' => function($content) use($query) {
         $u = $query['url'] ?? [];
         $kicks = [];
         if (false !== strpos($content, '</a>')) {
             $content = preg_replace_callback('/<a(?:\s[^>]*)?>/', function($m) use(&$kicks, $query, $u) {
                 $out = $m[0];
-                $out = preg_replace_callback('/ href="(\/[^?&#].*?)(?:\.html)?([?&#].*)?"/', function($m) use(&$kicks, $query) {
+                $out = preg_replace_callback('/ href="(\/[^?&#"].*?)(?:\.html)?([?&#].*)?"/', function($m) use(&$kicks, $query) {
                     // Skip URL with relative protocol(s)
                     if (0 === strpos($m[1], '//')) {
                         return $m[0];
                     }
                     if (0 === strpos($m[1], '/p/')) {
-                        $kicks[$m[1] . ($m[2] ?? "")] = $kick = substr($m[1], 2) . ($m[2] ?? "");
+                        $kicks[$m[1] . '.html' . ($m[2] ?? "")] = $kick = substr($m[1], 2) . ($m[2] ?? "");
                         return ' href="' . $kick . '"';
                     }
-                    $kicks[$m[1] . ($m[2] ?? "")] = $kick = $query['folder'] . $m[1] . ($m[2] ?? "");
+                    $kicks[$m[1] . '.html' . ($m[2] ?? "")] = $kick = $query['folder'] . $m[1] . ($m[2] ?? "");
                     return ' href="' . $kick . '"';
                 }, $out);
                 if (!empty($u[0])) {
-                    $out = preg_replace_callback('/ href="(?:(?:https?:)?\/\/(?:' . x($u[0]) . '))([^?&#]*?)(?:\.html)?([?&#].*)?"/', function($m) use(&$kicks, $query) {
+                    $out = preg_replace_callback('/ href="(?:(?:https?:)?\/\/(?:' . x($u[0]) . '))([^?&#"]*?)(?:\.html)?([?&#].*)?"/', function($m) use(&$kicks, $query) {
                         // Skip URL with relative protocol(s)
                         if (0 === strpos($m[1], '//')) {
                             return $m[0];
                         }
                         if (0 === strpos($m[1], '/p/')) {
-                            $kicks[$m[1] . ($m[2] ?? "")] = $kick = substr($m[1], 2) . ($m[2] ?? "");
+                            $kicks[$m[1] . '.html' . ($m[2] ?? "")] = $kick = substr($m[1], 2) . ($m[2] ?? "");
                             return ' href="' . $kick . '"';
                         }
-                        $kicks[$m[1] . ($m[2] ?? "")] = $kick = $query['folder'] . $m[1] . ($m[2] ?? "");
+                        $kicks[$m[1] . '.html' . ($m[2] ?? "")] = $kick = $query['folder'] . $m[1] . ($m[2] ?? "");
                         return ' href="' . $kick . '"';
                     }, $out);
                 }
                 if (!empty($u[1])) {
-                    $out = preg_replace_callback('/ href="(?:(?:https?:)?\/\/(?:' . x($u[1]) . '))([^?&#]*?)(?:\.html)?([?&#].*)?"/', function($m) use(&$kicks, $query) {
+                    $out = preg_replace_callback('/ href="(?:(?:https?:)?\/\/(?:' . x($u[1]) . '))([^?&#"]*?)(?:\.html)?([?&#].*)?"/', function($m) use(&$kicks, $query) {
                         // Skip URL with relative protocol(s)
                         if (0 === strpos($m[1], '//')) {
                             return $m[0];
                         }
                         if (0 === strpos($m[1], '/p/')) {
-                            $kicks[$m[1] . ($m[2] ?? "")] = $kick = substr($m[1], 2) . ($m[2] ?? "");
+                            $kicks[$m[1] . '.html' . ($m[2] ?? "")] = $kick = substr($m[1], 2) . ($m[2] ?? "");
                             return ' href="' . $kick . '"';
                         }
-                        $kicks[$m[1] . ($m[2] ?? "")] = $kick = $query['folder'] . $m[1] . ($m[2] ?? "");
+                        $kicks[$m[1] . '.html' . ($m[2] ?? "")] = $kick = $query['folder'] . $m[1] . ($m[2] ?? "");
                         return ' href="' . $kick . '"';
                     }, $out);
                 }
@@ -136,10 +140,6 @@ $converter = [
             $content = preg_replace('/\s*<br\s*\/?>\s*/', "\n", $content);
             $content = fire($fn, [$content], (object) ['type' => 'HTML']);
         }
-        return [$content, []];
-    },
-    'blogger' => function($content) {
-        $content = Hook::fire('blogger.fix', [$content]);
         return [$content, []];
     }
 ];

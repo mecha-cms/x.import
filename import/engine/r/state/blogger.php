@@ -89,35 +89,37 @@ return [
                         'type' => 'items',
                         'block' => true,
                         'lot' => [
+                            'h-t-m-l' => [
+                                'title' => 'Convert XHTML tags to HTML5 tags.',
+                                'description' => 'Convert &lt;br/&gt; to &lt;br&gt;, &lt;b&gt; to &lt;strong&gt;, etc.',
+                                'value' => 1
+                            ],
+                            'hooks' => [
+                                'title' => 'Run all filters applied to the <code>BLOGGER_CONTENT</code> hook.',
+                                'value' => 1,
+                                'active' => $has_blogger_hooks = !!Hook::get('BLOGGER_CONTENT')
+                            ],
+                            'image' => [
+                                'title' => 'Download images in posts and pages and convert its URL into local image URL.',
+                                'value' => 1
+                            ],
                             'link' => [
                                 'title' => 'Automatically convert old internal URL into relative URL.',
                                 'frozen' => true,
                                 'value' => 1
                             ],
                             'p' => [
-                                'active' => $ok = null !== State::get('x.p'),
+                                'active' => $has_p_extension = null !== State::get('x.p'),
                                 'title' => 'Convert line-break sequence into paragraph sequence.',
-                                'description' => $ok ? null : 'Missing automatic paragraph extension.',
-                                'value' => 1
-                            ],
-                            'image' => [
-                                'title' => 'Download images in posts and pages and convert its URL into local image URL.',
-                                'value' => 1
-                            ],
-                            'h-t-m-l' => [
-                                'title' => 'Convert XHTML tags to HTML5 tags.',
-                                'description' => 'Convert &lt;br/&gt; to &lt;br&gt;, &lt;b&gt; to &lt;strong&gt;, etc.',
-                                'value' => 1
-                            ],
-                            'blogger' => [
-                                'title' => 'Run all filters applied to the <code>blogger.fix</code> hook.',
+                                'description' => $has_p_extension ? null : 'Missing automatic paragraph extension.',
                                 'value' => 1
                             ]
                         ],
                         'value' => [
+                            'h-t-m-l' => 1,
+                            'hooks' => $has_blogger_hooks ? 1 : null,
                             'link' => 1,
-                            'p' => $ok ? 1 : null,
-                            'h-t-m-l' => 1
+                            'p' => $has_p_extension ? 1 : null
                         ],
                         'stack' => 50
                     ],

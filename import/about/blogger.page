@@ -26,3 +26,19 @@ https://www.blogger.com/blogger.g?blogID=29890010286969••••
 ~~~
 
 The safe mode is used to specify a special folder to store files that have been successfully imported. By not checking this option, all files will be automatically saved according to the standard files and folders hierarchy in Mecha and may make your old data to be mixed and replaced with the new data. I suggest you to keep that option checked unless you are importing a blog data on a new installed Mecha CMS site.
+
+### Applying Content Filters
+
+You can improve the original posts, pages and comments structure while importing, via hooks:
+
+~~~ .php
+Hook::set('BLOGGER_CONTENT', function($content) {
+    return str_replace([
+        '<center>', '</center>'
+    ], [
+        '<div style="text-align: center;">', '</div>'
+    ], $content);
+});
+~~~
+
+Make sure to check the option related to this hook in the converter field.

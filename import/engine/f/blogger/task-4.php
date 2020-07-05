@@ -10,15 +10,17 @@ if ($r = require __DIR__ . DS . 'f.php') {
     return $r;
 }
 
-$create = 0;
-
 if (!empty($data['feed']['entry'])) {
+    $link = null;
     foreach ($data['feed']['entry'] as $v) {
         $n = uniqid();
         foreach ($v['link'] ?? [] as $vv) {
             if ($source && 'alternate' === $vv['rel']) {
                 $n = basename($vv['href'], '.html');
                 break;
+            }
+            if ('related' === $vv['rel']) {
+                $link = $vv['href'];
             }
         }
         $file = is_file($f = $folder . DS . 'lot' . DS . 'page' . DS . $n . '.page');
@@ -45,6 +47,8 @@ if (!empty($data['feed']['entry'])) {
                 file_put_contents($d . DS . 'time-up.data', date('Y-m-d H:i:s', strtotime($v['updated']['$t'])));
             }
             if (!empty($query['f'])) {
+                $tsv = $folder . DS . 'lot' . DS . 'page' . DS . 'kick.tsv';
+                $kicks = file_get_contents($tsv);
                 foreach ($query['f'] as $fn => $foo) {
                     if ('image' === $fn) {
                         continue; // Continue below
@@ -53,18 +57,19 @@ if (!empty($data['feed']['entry'])) {
                         $out = call_user_func($converter[$fn], $content);
                         $content = $out[0];
                         if ('link' === $fn && !empty($out[1])) {
-                            // TODO: Store link(s) to kick.tsv
                             foreach ($out[1] as $kk => $vv) {
-                                
+                                $kicks .= "\n" . $kk . "\t" . $vv;
                             }
                         }
                     }
                 }
+                file_put_contents($tsv, ltrim($kicks, "\n"));
             }
             file_put_contents($f, To::page(is([
                 'title' => $title,
                 'author' => $author && isset($v['author'][0]['name']['$t']) && $author === $v['author'][0]['name']['$t'] ? null : ($v['author'][0]['name']['$t'] ?? null),
                 'type' => 'HTML',
+                'link' => $link,
                 'content' => $content
             ], function($v) {
                 return isset($v);
@@ -73,7 +78,6 @@ if (!empty($data['feed']['entry'])) {
                 'status' => 201,
                 'description' => i('Page %s successfully imported to %s', ['<strong>' . ($title ?? basename($f)) . '</strong>', '<code>' . strtr($f, [ROOT => '.']) . '</code>'])
             ];
-            ++$create;
         } else if ($file) {
             $log[microtime()] = [
                 'status' => 304,
@@ -96,12 +100,6 @@ if (!empty($data['feed']['entry'])) {
         ];
     }
     if ($index + $query['chunk'] >= (int) ($data['feed']['openSearch$totalResults']['$t'] ?? 0)) {
-        if ($create > 0) {
-            $log[microtime()] = [
-                'status' => 201,
-                'description' => i('%d page' . (1 === $create ? "" : 's') . ' successfully imported to %s', [$create, '<code>' . strtr($folder . DS . 'lot' . DS . 'page', [ROOT => '.']) . '</code>'])
-            ];
-        }
         $log[microtime()] = [
             'status' => 200,
             'description' => i('Done.')

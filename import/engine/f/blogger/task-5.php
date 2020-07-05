@@ -12,8 +12,6 @@ if ($r = require __DIR__ . DS . 'f.php') {
 
 $id = $query['parent'];
 
-$create = 0;
-
 if ($source) {
     $u = parse_url($source);
     $source = 'http://' . $u['host'];
@@ -67,6 +65,8 @@ if (!empty($data['feed']['entry'])) {
                 file_put_contents($d . DS . 'time-up.data', date('Y-m-d H:i:s', strtotime($v['updated']['$t'])));
             }
             if (!empty($query['f'])) {
+                $tsv = $folder . DS . 'lot' . DS . 'page' . DS . 'kick.tsv';
+                $kicks = file_get_contents($tsv);
                 foreach ($query['f'] as $fn => $foo) {
                     if ('image' === $fn) {
                         continue; // Continue below
@@ -75,13 +75,13 @@ if (!empty($data['feed']['entry'])) {
                         $out = call_user_func($converter[$fn], $content);
                         $content = $out[0];
                         if ('link' === $fn && !empty($out[1])) {
-                            // TODO: Store link(s) to kick.tsv
                             foreach ($out[1] as $kk => $vv) {
-                                
+                                $kicks .= "\n" . $kk . "\t" . $vv;
                             }
                         }
                     }
                 }
+                file_put_contents($tsv, ltrim($kicks, "\n"));
             }
             // TODO: Store avatar to local
             $avatar = preg_replace('/\/s\d+(\-c)?\//', '/s80-c/', $v['author'][0]['gd$image']['src'] ?? "");
@@ -101,7 +101,6 @@ if (!empty($data['feed']['entry'])) {
                 'description' => i('Comment %s successfully imported to %s', ['<strong>' . ($title ?? basename($f)) . '</strong>', '<code>' . strtr($f, [ROOT => '.']) . '</code>']),
                 'parent' => $id
             ];
-            ++$create;
         } else if ($file) {
             $log[microtime()] = [
                 'status' => 304,
@@ -127,14 +126,6 @@ if (!empty($data['feed']['entry'])) {
             'chunk' => $query['chunk'],
             'i' => $query['i'] + 1
         ]);
-    }
-} else {
-    if ($create > 0) {
-        $log[microtime()] = [
-            'status' => 201,
-            'description' => i('%d comment' . (1 === $create ? "" : 's') . ' successfully imported to %s', [$create, '<code>' . strtr($folder . DS . 'lot' . DS . 'comment' . $query['folder'] . DS . $n, [ROOT => '.']) . '</code>']),
-            'parent' => $id
-        ];
     }
 }
 

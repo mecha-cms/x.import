@@ -95,5 +95,5 @@ $log[microtime()] = [
 
 return [
     'log' => $log,
-    'next' => true
+    'next' => $url . '/.import/blogger/task-7' . $url->query
 ];
