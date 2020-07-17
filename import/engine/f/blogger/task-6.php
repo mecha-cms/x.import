@@ -47,7 +47,7 @@ if (empty($data['content']) || false === strpos($data['content'], '<img ')) {
 }
 
 // TODO: Download image URL in anchor tag?
-$data['content'] = preg_replace_callback('/<img(\s[^>]*?)?>/', function($m) use($f, $folder, $id, &$log, $query, $url) {
+$data['content'] = preg_replace_callback('/<img(\s[^>]*)?>/', function($m) use($f, $folder, $id, &$log, $query, $url) {
     if (empty($m[1]) || false === strpos($m[1], ' src="')) {
         return $m[0];
     }

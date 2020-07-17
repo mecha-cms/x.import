@@ -24,9 +24,7 @@ if (!empty($data['feed']['entry'])) {
                 $href = preg_replace('/\.blogspot\.[^\s\/]+(.*)$/', '.blogspot.com$1', $href);
                 $n = substr(explode('?', $href, 2)[0], strlen($source) + 1, -strlen('.html'));
             }
-            if ('related' === $vv['rel']) {
-                $link = $vv['href'];
-            }
+            $link = 'related' === $vv['rel'] ? $vv['href'] : null;
         }
         $count = count(explode('/', $n));
         foreach (array_values(step($n, '/')) as $kkk => $vvv) {

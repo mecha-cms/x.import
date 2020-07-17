@@ -19,9 +19,7 @@ if (!empty($data['feed']['entry'])) {
                 $n = basename($vv['href'], '.html');
                 break;
             }
-            if ('related' === $vv['rel']) {
-                $link = $vv['href'];
-            }
+            $link = 'related' === $vv['rel'] ? $vv['href'] : null;
         }
         $file = is_file($f = $folder . DS . 'lot' . DS . 'page' . DS . $n . '.page');
         $title = $v['title']['$t'] ?? null;

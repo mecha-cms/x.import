@@ -62,7 +62,7 @@ $converter = [
             return [$content, []];
         }
         if (false !== strpos($content, '/>')) {
-            $content = preg_replace('/<(br|hr|img|input)(\s[^>]*)?\s*\/?>/', '<$1$2>', $content);
+            $content = preg_replace('/<(br|hr|img|input)(\s[^>]*)?\s*\/>/', '<$1$2>', $content);
         }
         if (false !== strpos($content, '</pre>')) {
             $content = preg_replace_callback('/<pre(\s[^>]*)?>[\s\S]*?<\/pre>/', function($m) {
@@ -71,7 +71,9 @@ $converter = [
         }
         $content = strtr($content, [
             '<b>' => '<strong>',
+            '<b ' => '<strong ',
             '<i>' => '<em>',
+            '<i ' => '<em ',
             '</b>' => '</strong>',
             '</i>' => '</em>'
         ]);
